@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TNSCHE Survey</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        #dataForm {
+            display: none;
+        }		
+	#signOut {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <h1>TNSCHE</h1>
+
+    <!-- Display success or error message -->
+    <div id="message"></div>
+
+    <!-- Display user details -->
+    <div id="userInfo">
+        <p>Welcome to TNSCHE Survey</p>
+    </div>
+
+    <!-- Google Sign-In Buttons -->
+    <div class="sign-buttons">
+	<button id="signIn" onclick="googleSignIn()">Sign In with Google</button>
+    <button id="signOut" onclick="googleSignOut()">Sign Out</button>
+	</div>
+
+    <!-- Feedback Form -->
+    <form id="dataForm">
+        <input type="text" id="registerNumber" placeholder="RegisterNumber" required><br><br>            
+		<select id="district" class="searchable-dropdown" required>
+            <option value="">Select District</option>
+        </select><br><br>
+        <select id="stream" class="searchable-dropdown" required>
+            <option value="">Select Stream</option>
+        </select><br><br>
+        <select id="university" class="searchable-dropdown" required>
+            <option value="">Select University</option>
+        </select><br><br>
+        <select id="collegeName" class="searchable-dropdown" required>
+            <option value="">Select College Name</option>
+        </select><br><br>        
+        <div id="questions"></div>
+        <button type="submit">Submit</button>
+    </form>
+
+    <!-- Template for Questions -->
+    <script>
+        const questions = [
+            {
+                en: "How effective are the faculties in explaining concepts?",
+                ta: "பாடங்களை விளக்குவதிலும் சந்தேகங்களை தீர்ப்பதிலும் உங்கள் ஆசிரியர்களின் திறனை மதிப்பிடுக"
+            },
+            {
+                en: "How accessible are the faculties outside of class?",
+                ta: "பாட நேரங்களை தவிர்த்து பிற நேரங்களில் ஆசிரியர்களை அணுக முடிகிறதா?"
+            },
+            {
+                en: "How satisfied are you with the course value for the fees paid?",
+                ta: "தங்களுக்கு கற்பிக்கப்படும் பாடத்தின் மதிப்பு தங்களின் கல்வி கட்டணத்திற்கு ஏற்ற வகையில் அமைந்துள்ளதாக உணருகிறீர்களா?"
+            },
+            {
+                en: "Do you like the learning environment on campus?",
+                ta: "உங்கள் கல்லூரியின் கற்றல் சூழலை மதிப்பிடுக"
+            },
+            {
+                en: "Do you feel safe on campus?",
+                ta: "உங்கள் கல்லூரி வளாகத்திற்குள் நீங்கள் பாதுகாப்பாக உணருகிறீர்களா?"
+            },
+            {
+                en: "How effective are the grievance redressal mechanisms?",
+                ta: "உங்கள் கல்லூரியில் உள்ள குறை தீர்ப்பு வழிமுறைகளின் செயல்பாட்டை மதிப்பிடுக"
+            },
+            {
+                en: "Was the admission process easy?",
+                ta: "கல்லூரி சேர்க்கை மற்றும் அதற்கான செயல்முறைகள் எளிதாக இருந்தனவா?"
+            },
+            {
+                en: "Are the administrative staff helpful?",
+                ta: "உங்களுக்கு உதவி தேவைப்படும்போது நிர்வாக ஊழியர்கள் உதவுகிறார்களா?"
+            },
+            {
+                en: "Rate the quality of classrooms, labs, and facilities.",
+                ta: "வகுப்பறைகள், ஆய்வகங்கள் மற்றும் பிற கல்வி வசதிகளின் தரத்தை மதிப்பிடுக"
+            },
+            {
+                en: "Rate the library resources and journals.",
+                ta: "தங்கள் கல்லூரியில் நூலக சேவைகள் (ஆய்வு இதழ்கள் உட்பட) திருப்திகரமாக உள்ளதா?"
+            },
+            {
+                en: "Rate the hostel facilities.",
+                ta: "விடுதி அறைகள், உணவு மற்றும் பாதுகாப்பு குறித்து உங்கள் மதிப்பீடு"
+            },
+            {
+                en: "How important is mental health support at the institution?",
+                ta: "தங்களின் மனநல மேம்பாட்டிற்கு உங்கள் கல்லூரி முக்கியத்துவம் அளிக்கிறதா?"
+            },
+            {
+                en: "How effective are career services for internships?",
+                ta: "தொழிற்பயிற்சிகள் மற்றும் வேலை வாய்ப்புகளுக்கான உதவிகளை மதிப்பிடுக"
+            },
+            {
+                en: "Rate the institution’s support for skill development.",
+                ta: "திறன் மேம்பாட்டிற்கு உங்கள் கல்லூரி முக்கியத்துவம் அளிக்கிறதா?"
+            },
+            {
+                en: "Rate opportunities for research or experiential learning.",
+                ta: "ஆராய்ச்சி அல்லது அனுபவக் கற்றலுக்கான வாய்ப்புகள் திருப்திகரமா?"
+            },
+            {
+                en: "Rate extracurricular activity support.",
+                ta: "கல்வி சாரா செயல்பாடுகளுக்கு உங்கள் கல்லூரியின் ஆதரவை மதிப்பிடுக"
+            },
+            {
+                en: "Does the institution help connect with alumni?",
+                ta: "முன்னாள் மாணவர்களுடன் தொடர்பு கொள்வதற்கான வாய்ப்புகள் வழங்கப்படுகிறதா?"
+            },
+            {
+                en: "Rate your overall experience at the institution.",
+                ta: "கல்லூரியைப் பற்றிய தங்களின் மொத்த மதிப்பீடு"
+            },
+            {
+                en: "How likely are you to recommend this institution?",
+                ta: "இந்தக் கல்லூரியைப் பிறருக்கு பரிந்துரைப்பீர்களா?"
+            }
+        ];
+
+        const questionContainer = document.getElementById("questions");
+        questions.forEach((q, index) => {
+            const questionHTML = `
+                <div class="rating-section">
+                    <p><b>${index + 1}. ${q.en} <br> ${q.ta}</b></p>
+                    <div class="rating">
+                        ${[1, 2, 3, 4, 5].map(num => `
+                            <input type="radio" id="q${index + 1}-${num}" name="q${index + 1}" value="${num}">
+                            <label for="q${index + 1}-${num}">☆</label>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+            questionContainer.innerHTML += questionHTML;
+        });
+    </script>
+
+    <script type="module" src="firebased.js"></script>
+</body>
+</html>
